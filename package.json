@@ -1,0 +1,13 @@
+{
+  "name": "smart-folder",
+  "version": "2019.4.27",
+  "description": "smart folder",
+  "keywords": [
+    "folder"
+  ],
+  "homepage": "https://github.com/looking-for-a-job/smart-folder",
+  "license": "Unlicense",
+  "bin": {
+    "smart-folder": "./scripts/smart-folder"
+  }
+}

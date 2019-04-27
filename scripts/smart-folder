@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+{ set +x; } 2>/dev/null
+
+usage() {
+    cat <<EOF 1>&2
+usage: $(basename $0) folder target ...
+EOF
+    [[ $1 == "-h" ]] || [[ $1 == "--help" ]]; exit
+}
+
+[[ $1 == "-h" ]] || [[ $1 == "--help" ]] && usage "$@"
+
+[[ $# -lt 1 ]] && usage
+
+f1="$(mktemp)" || exit
+f2="$(mktemp)" || exit
+
+! [ -e "$1" ] && { mkdir -p "$1" || exit; }
+folder="$1"; shift
+find "$folder" -type l -mindepth 1 -maxdepth 1 > "$f2" || exit
+
+counter=0
+while [[ $# != 0 ]]; do
+    ((counter++))
+    [[ -z "$1" ]] && echo "ERROR: arg $counter EMPTY" 1>&2 && exit 1
+    src="$1"
+    [[ "$src" == */ ]] && src="${src::${#src}-1}"
+    ! [ -e "$src" ] && echo "ERROR: $src NOT EXISTS" 1>&2 && exit 1
+    dst="$folder/${src##*/}"
+    [ -L "$dst" ] && {
+        readlink="$(readlink "$dst")" || exit
+        [[ $readlink != "$src" ]] && { rm "$dst" || exit; }
+    }
+    ln -fs "$src" "$dst" || exit
+    echo "$dst" >> "$f1" || exit
+    shift
+done
+[ -e "$f1" ] && [ -e "$f2" ] && {
+    outdated="$(awk 'FNR==NR{array[$0];next}{if ($1 not in array) next;print $1}' "$f1" "$f2")" || exit
+    [[ -n "$outdated" ]] && { IFS=$'\n'; set $outdated; rm "$@" || exit; }
+};:
