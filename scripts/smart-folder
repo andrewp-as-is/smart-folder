@@ -31,11 +31,11 @@ while [[ $# != 0 ]]; do
         readlink="$(readlink "$dst")" || exit
         [[ $readlink != "$src" ]] && { rm "$dst" || exit; }
     }
-    ln -fs "$src" "$dst" || exit
+    ! [ -e "$dst" ] && { ln -fs "$src" "$dst" || exit; }
     echo "$dst" >> "$f1" || exit
     shift
 done
-[ -e "$f1" ] && [ -e "$f2" ] && {
-    outdated="$(awk 'FNR==NR{array[$0];next}{if ($1 not in array) next;print $1}' "$f1" "$f2")" || exit
+[ -s "$f1" ] && [ -s "$f2" ] && {
+    outdated="$(awk 'FNR==NR{array[$0];next}{if ($0 not in array) next;print $0}' "$f1" "$f2")" || exit
     [[ -n "$outdated" ]] && { IFS=$'\n'; set $outdated; rm "$@" || exit; }
 };:
