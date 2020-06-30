@@ -5,10 +5,10 @@ usage() {
     cat <<EOF 1>&2
 usage: $(basename $0) folder target ...
 EOF
-    [[ $1 == "-h" ]] || [[ $1 == "--help" ]]; exit
+    [ "$1" = "-h" ] || [ "$1" = "--help" ]; exit
 }
 
-[[ $1 == "-h" ]] || [[ $1 == "--help" ]] && usage "$@"
+[ "$1" = "-h" ] || [ "$1" = "--help" ] && usage "$@"
 
 [[ $# -lt 1 ]] && usage
 
